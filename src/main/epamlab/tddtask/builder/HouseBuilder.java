@@ -61,18 +61,17 @@ public class HouseBuilder {
         Elevator elevator = new Elevator(elevatorCapacity);
         House house = new House(storiesNumber, passengersNumber, elevator);
 
-
-//        for (int i = 1; i <= passengersNumber; i++) {
-//            int location = 0;
-//            int destination = 0;
-//            int id = i;
-//            while (location == destination) {
-//                location = generateFloor();
-//                destination = generateFloor();
-//            }
-//            Passenger passenger = new Passenger(id, location, destination);
-//            house.placePassenger(passenger, location);
-//        }
+        for (int i = 1; i <= passengersNumber; i++) {
+            int location = 0;
+            int destination = 0;
+            int id = i;
+            while (location == destination) {
+                location = generateFloor();
+                destination = generateFloor();
+            }
+            Passenger passenger = new Passenger(id, location, destination);
+            house.placePassenger(passenger, location);
+        }
         return house;
     }
 
@@ -94,8 +93,6 @@ public class HouseBuilder {
         }
 
     }
-
-
 
     private static int generateFloor() {
         Random generator = new Random();

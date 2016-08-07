@@ -1,7 +1,7 @@
 package main.epamlab.tddtask.enums;
 
 /**
- * Created by al on 7/13/16.
+ * Created by al on 7/7/16.
  */
 public enum Direction {
     /**

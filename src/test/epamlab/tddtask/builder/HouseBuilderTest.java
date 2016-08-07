@@ -29,7 +29,6 @@ public class HouseBuilderTest {
     private Properties properties = new Properties();
 
     private House house;
-
     @Before
     public void init(){
         readProperty();
@@ -38,13 +37,19 @@ public class HouseBuilderTest {
         passengersNumber = Integer.valueOf(properties.getProperty("passengersNumber"));
     }
 
+    /**
+     * There is a house, that has several floors.
+     */
     @Test
     public void houseHasSuchFloorsAsInConfigFile(){
         house = new House (storiesNumber);
         int floorsNumber = house.getHeight();
-        assertThat(storiesNumber, is(floorsNumber));
+        assertThat("number of floors in house should be match with property",storiesNumber, is(floorsNumber));
     }
 
+    /**
+     * Every Floor has dispatch and arrival story container.
+     */
     @Test
     public void everyFloorHasDispatchAndArrivalStoryContainer(){
         house = new House(storiesNumber);
@@ -52,14 +57,16 @@ public class HouseBuilderTest {
         for(Map.Entry<Integer,Floor> entry: floors.entrySet()){
             Set<Passenger>dispatchContainer = entry.getValue().getDispatchStoryContainer();
             Set<Passenger>arrivalContainer = entry.getValue().getArrivalStoryContainer();
-            assertFalse(dispatchContainer == null);
-            assertFalse(arrivalContainer == null);
+            assertFalse("if dispatch container not null - its exists", dispatchContainer == null);
+            assertFalse("if arrival container not null - its exists", arrivalContainer == null);
         }
     }
 
-
+    /**
+     * House has an elevator of certain capacity.
+     */
     @Test
-    public void houseHasElevatorCertainCapacity(){
+    public void elevatorCapacityInHouseIsAsInConfigFile(){
         Elevator elevator = new Elevator(elevatorCapacity);
         house = new House (storiesNumber, passengersNumber, elevator);
         assertThat(house.getElevator(), instanceOf(Elevator.class));
@@ -68,6 +75,9 @@ public class HouseBuilderTest {
                 elevator.getCapacity(), is(elevatorCapacity));
     }
 
+    /**
+     *There are passengers on floors.
+     */
     @Test
     public void thereArePassengersOnFloorsSuchAsInConfigProperty(){
         Elevator elevator = new Elevator(elevatorCapacity);
@@ -79,9 +89,13 @@ public class HouseBuilderTest {
             Set<Passenger> passengerSet = entry.getValue().getDispatchStoryContainer();
             count += passengerSet.size();
         }
-        assertThat(count, is(passengersNumber));
+        assertThat("passenger count in house should be match with passengersNumber properties",
+                count, is(passengersNumber));
     }
 
+    /**
+     *Passengers located on floors randomly.
+     */
     @Test
     public void passengersOnFloorsLocatesRandomly(){
         Elevator elevator = new Elevator(elevatorCapacity);
@@ -112,7 +126,9 @@ public class HouseBuilderTest {
         return result;
     }
 
-
+    /**
+     * Every passenger has unique id and some kind random generated in requirement destination story.
+     */
     @Test
     public void everyPassengerHasUniqueId(){
         Elevator elevator = new Elevator(elevatorCapacity);
@@ -129,9 +145,11 @@ public class HouseBuilderTest {
             int secondPosition = ids.lastIndexOf(id);
             assertThat("There must be unique id for every passenger", position, is(secondPosition));
         }
-
     }
 
+    /**
+     * Every passenger has location and destination, that should not match.
+     */
     @Test
     public void everyPassengerHasNotMatchingLocationAndDestinationStories(){
         Elevator elevator = new Elevator(elevatorCapacity);
@@ -143,6 +161,14 @@ public class HouseBuilderTest {
             assertThat("Location and destination shuldn't match", location, not(is(destination)));
         }
     }
+
+//    /**
+//     * Method houseBuild() of class HouseBuilder creates house according with requirements.
+//     * @return
+//     */
+//    public void houseBuildTest(){
+//
+//    }
 
     private Properties readProperty() {
         FileInputStream inStream = null;

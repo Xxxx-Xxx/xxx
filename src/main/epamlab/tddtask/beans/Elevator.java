@@ -56,7 +56,9 @@ public class Elevator {
      * @param passenger object for action.
      */
     public void getIn(final Passenger passenger) {
-        elevatorContainer.add(passenger);
+        if(elevatorContainer.size() < capacity) {
+            elevatorContainer.add(passenger);
+        }
     }
 
     /**
