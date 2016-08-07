@@ -18,14 +18,16 @@ public class HouseBuilder {
     private static int elevatorCapacity;
     private static int passengersNumber;
     private final static String PROPERTIES_FILE_PATH = "src/resources/config.property";
+    private static Elevator elevator;
+    private static House house;
 
     public HouseBuilder() {
     }
 
     /**
-     * close inStrieam in finally!
+     * Reads property from file
      */
-    private static void readProperty() {
+    public static void readProperty() {
         Properties properties = new Properties();
         try {
             FileInputStream inStream = new FileInputStream(PROPERTIES_FILE_PATH);
@@ -42,10 +44,42 @@ public class HouseBuilder {
         }
     }
 
-    public static House build() {
+    public static int getStoriesNumber() {
+        return storiesNumber;
+    }
+
+    public static int getElevatorCapacity() {
+        return elevatorCapacity;
+    }
+
+    public static int getPassengersNumber() {
+        return passengersNumber;
+    }
+
+    public static House buildHouse() {
         readProperty();
         Elevator elevator = new Elevator(elevatorCapacity);
         House house = new House(storiesNumber, passengersNumber, elevator);
+
+
+//        for (int i = 1; i <= passengersNumber; i++) {
+//            int location = 0;
+//            int destination = 0;
+//            int id = i;
+//            while (location == destination) {
+//                location = generateFloor();
+//                destination = generateFloor();
+//            }
+//            Passenger passenger = new Passenger(id, location, destination);
+//            house.placePassenger(passenger, location);
+//        }
+        return house;
+    }
+
+    public static void addPassengers(){
+        readProperty();
+        elevator = new Elevator(elevatorCapacity);
+        house = new House(storiesNumber, passengersNumber, elevator);
 
         for (int i = 1; i <= passengersNumber; i++) {
             int location = 0;
@@ -58,12 +92,28 @@ public class HouseBuilder {
             Passenger passenger = new Passenger(id, location, destination);
             house.placePassenger(passenger, location);
         }
-        return house;
+
     }
+
+
 
     private static int generateFloor() {
         Random generator = new Random();
         int floorNumber = generator.nextInt(storiesNumber - 1) + 1;
         return floorNumber;
+    }
+
+    private static void addPassengers(House house) {
+        for (int i = 1; i <= passengersNumber; i++) {
+            int location = 0;
+            int destination = 0;
+            int id = i;
+            while (location == destination) {
+                location = generateFloor();
+                destination = generateFloor();
+            }
+            Passenger passenger = new Passenger(id, location, destination);
+            house.placePassenger(passenger, location);
+        }
     }
 }

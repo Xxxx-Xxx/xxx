@@ -8,10 +8,10 @@ import java.util.Map;
  * Created by al on 7/9/16.
  */
 public class House {
-    private final Map<Integer, Floor> floors;
-    private final Elevator elevator;
-    private final int height;
-    private final int passengersCount;
+    private Map<Integer, Floor> floors;
+    private Elevator elevator;
+    private int height;
+    private int passengersCount;
 
     /**
      * Constructor for create House object
@@ -25,6 +25,12 @@ public class House {
         this.floors = initFloors();
         this.passengersCount = passengersNumber;
     }
+
+    public House(int height) {
+        this.height = height;
+        initFloors();
+    }
+
 
     /**
      * Initialize floors
