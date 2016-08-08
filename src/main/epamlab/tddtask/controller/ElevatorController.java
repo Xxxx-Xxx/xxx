@@ -7,6 +7,7 @@ import main.epamlab.tddtask.beans.Passenger;
 import main.epamlab.tddtask.enums.Direction;
 import main.epamlab.tddtask.enums.ElevatorControllerAction;
 import main.epamlab.tddtask.enums.PassengerState;
+import main.epamlab.tddtask.utility.TransportationCompleteValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,11 +25,16 @@ public class ElevatorController implements Runnable {
     private Direction direction;
     private ElevatorControllerAction action;
     private final Logger logger = LogManager.getLogger(ElevatorController.class);
+    private TransportationCompleteValidator validator;
 
 
     public ElevatorController(House house) {
         this.house = house;
-        elevator = house.getElevator();
+        this.elevator = house.getElevator();
+        this.direction = Direction.UP;
+        this.validator = TransportationCompleteValidator.getInstance(house);
+        this.action = ElevatorControllerAction.STARTING_TRANSPORTATION;
+        logger.info(action);
     }
 
     public void startElevator() {
@@ -106,7 +112,6 @@ public class ElevatorController implements Runnable {
             floor.sendPassenger(passenger);
             elevator.getIn(passenger);
             passenger.setNotified(false);
-            passenger.setState(PassengerState.IN_PROGRESS);
             logger.info(action + " of passenger id:" + passenger.getId() + " on floor:" + location);
         }
     }
@@ -229,9 +234,9 @@ public class ElevatorController implements Runnable {
             executeOnFloor();
             startElevator();
             executeInElevator();
-//            if (validator.isAllFinished()) {
-//                stop();
-//            }
+            if (validator.isAllFinished()) {
+                stop();
+            }
         }
     }
 
@@ -242,5 +247,9 @@ public class ElevatorController implements Runnable {
         action = ElevatorControllerAction.COMPLETION_TRANSPORTATION;
         logger.info(action);
         Thread.currentThread().interrupt();
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 }

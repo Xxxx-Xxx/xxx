@@ -30,6 +30,9 @@ public class ElevatorControllerTest {
     private House house;
     private ElevatorController controller;
 
+    /**
+     * Prepared objects for tests
+     */
     @Before
     public void init() {
         house = HouseBuilder.buildHouse();
@@ -100,11 +103,12 @@ public class ElevatorControllerTest {
      */
     @Test
     public void controllerPutsPassengersInElevatorContainerNoMoreAsCapacity() {
-        List<Passenger>passengers = createPassengers(elevator.getCapacity()+2);
-        for(Passenger passenger:passengers){
+        List<Passenger> passengers = createPassengers(elevator.getCapacity() + 2);
+        for (Passenger passenger:passengers) {
             elevator.getIn(passenger);
         }
-        assertThat("controller puts in elevator no more passengers as capacity", elevator.getCapacity(), is(elevator.countPassengersInside()));
+        assertThat("controller puts in elevator no more passengers as capacity",
+                elevator.getCapacity(), is(elevator.countPassengersInside()));
     }
 
     /**
@@ -121,8 +125,7 @@ public class ElevatorControllerTest {
             spyController.startElevator();
         } else {
             int countInside = elevator.countPassengersInside();
-            verify(spyController, times(countInside)).getInElevator(any());
-        }
+            verify(spyController, times(countInside)).getInElevator(any());        }
     }
 
     /**
@@ -162,15 +165,15 @@ public class ElevatorControllerTest {
     @Test
     public void whenControllerExecutesNotifyPassengersOnFloorMethodPassengersOnFloorNotified() {
         int amount = house.getPassengersCount();
-        locatePassengers(amount);
+        locatePassengers(amount, house);
 
-        for(int i = 1; i<= house.getHeight(); i++){
+        for (int i = 1; i <= house.getHeight(); i++) {
             Floor floor = house.getFloor(i);
             int number = floor.countPassengers();
             CountDownLatch latch = new CountDownLatch(number);
             controller.notifyPassengersOnFloor(latch);
             Set<Passenger> passengers = floor.getDispatchStoryContainer();
-            for(Passenger passenger: passengers) {
+            for (Passenger passenger: passengers) {
                 assertTrue("passenger should be notified", passenger.isNotified());
             }
             controller.startElevator();
@@ -183,10 +186,10 @@ public class ElevatorControllerTest {
     @Test
     public void whenControllerExecutesNotifyInElevatorMethodPassengersInElevatorNotified() {
        int amount = house.getPassengersCount();
-        List<Passenger>passengers = createPassengers(amount);
-        locatePassengers(amount);
+        List<Passenger> passengers = createPassengers(amount);
+        locatePassengers(amount, house);
 
-        for(int i = 0; i < elevator.getCapacity(); i++) {
+        for (int i = 0; i < elevator.getCapacity(); i++) {
             Passenger passenger = passengers.get(i);
             elevator.getIn(passenger);
             Floor floor = house.getFloor(passenger.getLocation());
@@ -197,7 +200,7 @@ public class ElevatorControllerTest {
         controller.notifyPassengersInElevator(latch);
         Set<Passenger> candidates = elevator.getPassengersInside();
 
-        for(Passenger passenger: candidates){
+        for (Passenger passenger: candidates) {
             assertTrue("passengers should be notified", passenger.isNotified());
         }
     }
@@ -232,7 +235,12 @@ public class ElevatorControllerTest {
         assertTrue("arrivalcontainer on floor should contains passenger", passengersOnFloor.contains(passenger));
     }
 
-    private List<Passenger> createPassengers(int number) {
+    /**
+     * Utility method used in tests
+     * @param number    number of passengers
+     * @return  Collection of passengers
+     */
+    public static List<Passenger> createPassengers(final int number) {
         List<Passenger> passengers = new ArrayList<>();
         for (int i = 0; i <= number; i++) {
             int location = 0;
@@ -247,15 +255,20 @@ public class ElevatorControllerTest {
         } return passengers;
     }
 
-    private void locatePassengers(int number){
-        List<Passenger>passengers = createPassengers(number);
-        for(Passenger passenger: passengers){
+    /**
+     * Method used in several tests
+     * @param number    amount of passengers
+     * @param house house
+     */
+    public static void locatePassengers(final int number, final House house) {
+        List<Passenger> passengers = createPassengers(number);
+        for (Passenger passenger: passengers) {
             Floor location = house.getFloor(passenger.getLocation());
             location.placePassenger(passenger);
         }
     }
 
-    private int randomAttribute(int number){
+    private static int randomAttribute(final int number) {
         Random generator = new Random();
         int attribute = generator.nextInt(number - 1) + 1;
         return attribute;

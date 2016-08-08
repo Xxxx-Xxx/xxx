@@ -88,18 +88,18 @@ public class Passenger {
         return id;
     }
 
-//    /**
-//     * Defines whether current floor is destination floor for passenger.
-//     *
-//     * @return true - if that floor is target, false - if not.
-//     */
-//    public boolean isTargetFloor() {
-//        int currentLocation = getCurrentLocation();
-//        if (currentLocation == destinationStory) {
-//            return true;
-//        }
-//        return false;
-//    }
+    /**
+     * Defines whether current floor is destination floor for passenger.
+     *
+     * @return true - if that floor is target, false - if not.
+     */
+    public boolean isTargetFloor() {
+        int currentLocation = getCurrentLocation();
+        if (currentLocation == destinationStory) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Returns passengers current state
@@ -128,24 +128,24 @@ public class Passenger {
         this.task = task;
     }
 
-//    /**
-//     * Checks whether current direction is suitable for passenger
-//     * Used in transportation task
-//     * @return true - if direction is proper for passenger, false - if not.
-//     */
-//    public boolean isTargetDirection() {
-//        boolean isSuitable = false;
-//        Direction direction = controller.getDirection();
-//        switch (direction) {
-//            case UP:
-//                isSuitable = (destinationStory > location);
-//                break;
-//            default:
-//                isSuitable = (destinationStory < location);
-//                break;
-//        }
-//        return isSuitable;
-//    }
+    /**
+     * Checks whether current direction is suitable for passenger
+     * Used in transportation task
+     * @return true - if direction is proper for passenger, false - if not.
+     */
+    public boolean isTargetDirection() {
+        boolean isSuitable = false;
+        Direction direction = controller.getDirection();
+        switch (direction) {
+            case UP:
+                isSuitable = (destinationStory > location);
+                break;
+            default:
+                isSuitable = (destinationStory < location);
+                break;
+        }
+        return isSuitable;
+    }
 
     /**
      * Sets property "notified" for reference in future.
@@ -165,14 +165,14 @@ public class Passenger {
         return notified;
     }
 
-//    /**
-//     * Returns current location of elevator, where passenger is.
-//     *
-//     * @return floor number.
-//     */
-//    public int getCurrentLocation() {
-//        return controller.getLocation();
-//    }
+    /**
+     * Returns current location of elevator, where passenger is.
+     *
+     * @return floor number.
+     */
+    public int getCurrentLocation() {
+        return controller.getLocation();
+    }
 
     @Override
     public String toString() {
