@@ -29,8 +29,12 @@ public class HouseBuilderTest {
     private Properties properties = new Properties();
 
     private House house;
+
+    /**
+     * Creates objects befor tests
+     */
     @Before
-    public void init(){
+    public void init() {
         readProperty();
         storiesNumber = Integer.valueOf(properties.getProperty("storiesNumber"));
         elevatorCapacity = Integer.valueOf(properties.getProperty("elevatorCapacity"));
@@ -41,22 +45,22 @@ public class HouseBuilderTest {
      * There is a house, that has several floors.
      */
     @Test
-    public void houseHasSuchFloorsAsInConfigFile(){
-        house = new House (storiesNumber);
+    public void houseHasSuchFloorsAsInConfigFile() {
+        house = new House(storiesNumber);
         int floorsNumber = house.getHeight();
-        assertThat("number of floors in house should be match with property",storiesNumber, is(floorsNumber));
+        assertThat("number of floors in house should be match with property", storiesNumber, is(floorsNumber));
     }
 
     /**
      * Every Floor has dispatch and arrival story container.
      */
     @Test
-    public void everyFloorHasDispatchAndArrivalStoryContainer(){
-        house = new House(storiesNumber);
-        Map<Integer, Floor>floors = house.getFloors();
-        for(Map.Entry<Integer,Floor> entry: floors.entrySet()){
-            Set<Passenger>dispatchContainer = entry.getValue().getDispatchStoryContainer();
-            Set<Passenger>arrivalContainer = entry.getValue().getArrivalStoryContainer();
+    public void everyFloorHasDispatchAndArrivalStoryContainer() {
+        house = HouseBuilder.buildHouse();
+        Map<Integer, Floor> floors = house.getFloors();
+        for (Map.Entry<Integer, Floor> entry: floors.entrySet()) {
+            Set<Passenger> dispatchContainer = entry.getValue().getDispatchStoryContainer();
+            Set<Passenger> arrivalContainer = entry.getValue().getArrivalStoryContainer();
             assertFalse("if dispatch container not null - its exists", dispatchContainer == null);
             assertFalse("if arrival container not null - its exists", arrivalContainer == null);
         }
@@ -66,9 +70,9 @@ public class HouseBuilderTest {
      * House has an elevator of certain capacity.
      */
     @Test
-    public void elevatorCapacityInHouseIsAsInConfigFile(){
+    public void elevatorCapacityInHouseIsAsInConfigFile() {
         Elevator elevator = new Elevator(elevatorCapacity);
-        house = new House (storiesNumber, passengersNumber, elevator);
+        house = new House(storiesNumber, passengersNumber, elevator);
         assertThat(house.getElevator(), instanceOf(Elevator.class));
         int elevatorCapacity = Integer.valueOf(properties.getProperty("elevatorCapacity"));
         assertThat("Elevator capacity in house should match with elevatorCapacity property",
@@ -79,13 +83,13 @@ public class HouseBuilderTest {
      *There are passengers on floors.
      */
     @Test
-    public void thereArePassengersOnFloorsSuchAsInConfigProperty(){
+    public void thereArePassengersOnFloorsSuchAsInConfigProperty() {
         Elevator elevator = new Elevator(elevatorCapacity);
         house = new House(storiesNumber, passengersNumber, elevator);
         addPassengers(house);
         Map<Integer, Floor> floors = house.getFloors();
         int count = 0;
-        for(Map.Entry<Integer, Floor> entry: floors.entrySet()){
+        for (Map.Entry<Integer, Floor> entry: floors.entrySet()) {
             Set<Passenger> passengerSet = entry.getValue().getDispatchStoryContainer();
             count += passengerSet.size();
         }
@@ -97,7 +101,7 @@ public class HouseBuilderTest {
      *Passengers located on floors randomly.
      */
     @Test
-    public void passengersOnFloorsLocatesRandomly(){
+    public void passengersOnFloorsLocatesRandomly() {
         Elevator elevator = new Elevator(elevatorCapacity);
         House houseOne = new House(storiesNumber, passengersNumber, elevator);
         House houseTwo = new House(storiesNumber, passengersNumber, elevator);
@@ -130,7 +134,7 @@ public class HouseBuilderTest {
      * Every passenger has unique id and some kind random generated in requirement destination story.
      */
     @Test
-    public void everyPassengerHasUniqueId(){
+    public void everyPassengerHasUniqueId() {
         Elevator elevator = new Elevator(elevatorCapacity);
         House house = new House(storiesNumber, passengersNumber, elevator);
 
@@ -151,7 +155,7 @@ public class HouseBuilderTest {
      * Every passenger has location and destination, that should not match.
      */
     @Test
-    public void everyPassengerHasNotMatchingLocationAndDestinationStories(){
+    public void everyPassengerHasNotMatchingLocationAndDestinationStories() {
         Elevator elevator = new Elevator(elevatorCapacity);
         House house = new House(storiesNumber, passengersNumber, elevator);
         Set<Passenger> passengers = getAllPassengers(house);
@@ -161,14 +165,6 @@ public class HouseBuilderTest {
             assertThat("Location and destination shuldn't match", location, not(is(destination)));
         }
     }
-
-//    /**
-//     * Method houseBuild() of class HouseBuilder creates house according with requirements.
-//     * @return
-//     */
-//    public void houseBuildTest(){
-//
-//    }
 
     private Properties readProperty() {
         FileInputStream inStream = null;
@@ -197,7 +193,7 @@ public class HouseBuilderTest {
         return floorNumber;
     }
 
-    private void addPassengers(House house) {
+    private void addPassengers(final House house) {
         for (int i = 1; i <= passengersNumber; i++) {
             int location = 0;
             int destination = 0;

@@ -98,7 +98,8 @@ public final class TransportationCompleteValidator {
     }
 
     /**
-     * Checks all arrived passengers for status COMPLETED and for location in right arrival container, as their destinationStory.
+     * Checks all arrived passengers for status COMPLETED and for location in right arrival container,
+     * as their destinationStory.
      * @return  true - if all completed and destination story match with current floor. false - otherwise.
      */
     public boolean isAllPassengersArrivedCorrectly() {

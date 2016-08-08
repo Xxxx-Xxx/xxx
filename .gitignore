@@ -1,0 +1,20 @@
+# Ide's service files and dirs
+*.iml
+./idea/
+.project
+*idea*
+*.eml
+*.classpath
+*.log
+
+META-INF/
+/out/
+/build/
+*.class
+*jar*
+*war*
+
+# Vcs's service files and dirs
+./*git/
+
+

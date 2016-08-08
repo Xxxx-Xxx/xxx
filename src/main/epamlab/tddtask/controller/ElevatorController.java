@@ -27,8 +27,12 @@ public class ElevatorController implements Runnable {
     private final Logger logger = LogManager.getLogger(ElevatorController.class);
     private TransportationCompleteValidator validator;
 
-
-    public ElevatorController(House house) {
+    /**
+     * Constructor used for initialize fields and initialize fields by their current or default values
+     *
+     * @param house House object, where controller will be working
+     */
+    public ElevatorController(final House house) {
         this.house = house;
         this.elevator = house.getElevator();
         this.direction = Direction.UP;
@@ -37,6 +41,9 @@ public class ElevatorController implements Runnable {
         logger.info(action);
     }
 
+    /**
+     * Moves elevator on next floor
+     */
     public void startElevator() {
         action = ElevatorControllerAction.MOVING_ELEVATOR;
         logger.info(action + " from story " + elevator.getCurrentLocation() + " to story " + nextFloor());
@@ -155,7 +162,7 @@ public class ElevatorController implements Runnable {
         for (Passenger passenger : passengers) {
             passenger.setElevatorController(this);
             passenger.setNotified(true);
-            if(passenger.getTask()!=null) {
+            if (passenger.getTask() !=  null) {
                 passenger.getTask().setDoneSignal(latch);
                 synchronized (passenger) {
                     passenger.notify();
@@ -176,13 +183,13 @@ public class ElevatorController implements Runnable {
             return;
         } else {
             for (Passenger passenger : passengers) {
-                if(passenger.getTask()!=null) {
+                if (passenger.getTask() != null) {
                     passenger.getTask().setDoneSignal(latch);
                     passenger.setNotified(true);
                     synchronized (passenger) {
                         passenger.notify();
                     }
-                } else{
+                } else {
                     passenger.setNotified(true);
                 }
             }
@@ -249,6 +256,13 @@ public class ElevatorController implements Runnable {
         Thread.currentThread().interrupt();
     }
 
+    /**
+     * Returns direction that elevator should move
+     * Direction is used by the passenger to determine whether to enter the elevator or not.
+     * And also by controller, for define next floor to move.
+     *
+     * @return direction
+     */
     public Direction getDirection() {
         return direction;
     }

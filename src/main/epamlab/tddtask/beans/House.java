@@ -5,19 +5,20 @@ import java.util.Map;
 
 
 /**
- * Created by al on 7/9/16.
+ * Created by al on 7/7/16.
  */
 public class House {
-    private Map<Integer, Floor> floors;
-    private Elevator elevator;
-    private int height;
-    private int passengersCount;
+    private  Map<Integer, Floor> floors;
+    private  Elevator elevator;
+    private  int height;
+    private  int passengersCount;
 
     /**
      * Constructor for create House object
-     * @param height    height
-     * @param passengersNumber  passengers in house
-     * @param elevator  elevator.
+     *
+     * @param height           height
+     * @param passengersNumber passengers in house
+     * @param elevator         elevator.
      */
     public House(final int height, final int passengersNumber, final Elevator elevator) {
         this.elevator = elevator;
@@ -26,17 +27,22 @@ public class House {
         this.passengersCount = passengersNumber;
     }
 
-    public House(int height) {
+    /**
+     * Creates house object with floors
+     *
+     * @param height floors number
+     */
+    public House(final int height) {
         this.height = height;
         initFloors();
     }
 
-
     /**
      * Initialize floors
-     * @return  floors in the house.
+     *
+     * @return floors in the house.
      */
-    private  Map<Integer, Floor> initFloors() {
+    private Map<Integer, Floor> initFloors() {
         Map<Integer, Floor> floors = new HashMap<>(height);
         for (int i = 1; i <= height; i++) {
             floors.put(i, new Floor());
@@ -46,7 +52,8 @@ public class House {
 
     /**
      * Returns height of house
-     * @return  height.
+     *
+     * @return height.
      */
     public int getHeight() {
         return height;
@@ -54,7 +61,8 @@ public class House {
 
     /**
      * Returns floor of the house
-     * @return  floors.
+     *
+     * @return floors.
      */
     public Map<Integer, Floor> getFloors() {
         return floors;
@@ -62,7 +70,8 @@ public class House {
 
     /**
      * Returns passengers count in the house
-     * @return  number of passengers.
+     *
+     * @return number of passengers.
      */
     public int getPassengersCount() {
         return passengersCount;
@@ -70,7 +79,8 @@ public class House {
 
     /**
      * Returns elevator object
-     * @return  elevator.
+     *
+     * @return elevator.
      */
     public Elevator getElevator() {
         return elevator;
@@ -78,8 +88,9 @@ public class House {
 
     /**
      * Returns concrete floor of house, defined by floor number
-     * @param number    floor number
-     * @return  floor.
+     *
+     * @param number floor number
+     * @return floor.
      */
     public Floor getFloor(final int number) {
         return floors.get(number);
@@ -87,8 +98,9 @@ public class House {
 
     /**
      * Places passenger in concrete floor
-     * @param passenger passenger
-     * @param floorNumber   floor where passenger will be located.
+     *
+     * @param passenger   passenger
+     * @param floorNumber floor where passenger will be located.
      */
     public void placePassenger(final Passenger passenger, final int floorNumber) {
         Floor floor = floors.get(floorNumber);

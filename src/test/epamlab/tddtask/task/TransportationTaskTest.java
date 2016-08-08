@@ -13,12 +13,12 @@ import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.util.*;
 import java.util.concurrent.*;
 
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -123,47 +123,46 @@ public class TransportationTaskTest {
     }
 
 
-//    /**
-//     * Passengers should get in elevator when it moves in suitable direction.
-//     */
-    //Bad, rewrite
-//    @Test(timeout = 5000)
-//    public void whenElevatorDirectionIsNotSuitablePassengerShouldNotTryGetInElevator() {
-//        List<Passenger> passengers = getAllPassengerFromFloors();
-//        Passenger removed = passengers.get(0);
-//        Floor floor = house.getFloor(removed.getLocation());
-//        floor.sendPassenger(removed);
-//        controller = spy(new ElevatorController(house));
-//
-//        Passenger passenger = spy(new Passenger(66, 8, 1));
-//        passengers.add(passenger);
-//        CountDownLatch startSignal = new CountDownLatch(passengers.size());
-//        List<Callable<Passenger>> callableList = new ArrayList<>(passengers.size());
-//        for (Passenger person: passengers){
-//            TransportationTask task = new TransportationTask(startSignal, person);
-//            passenger.setElevatorController(controller);
-//            callableList.add(task);
-//        }
-//
-//        ExecutorService service = Executors.newCachedThreadPool();
-//        for (Callable<Passenger> task: callableList){
-//            service.submit(task);
-//        }
-//        service.submit(controller);
-//        try {
-//            startSignal.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        service.shutdown();
-//        InOrder inOrder = inOrder(controller, passenger);
-//        inOrder.verify(passenger).isTargetDirection();
-//        verify(controller).getInElevator(passenger);
-//        verify(controller, times(1)).getOutFromElevator(passenger);
-//        Floor targetFloor = house.getFloor(3);
-//        assertFalse("Passenger should not be in elevator", elevator.getPassengersInside().contains(passenger));
-//        assertTrue("Passenger have to arrived", targetFloor.getArrivalStoryContainer().contains(passenger));
-//    }
+    /**
+     * Passengers should get in elevator when it moves in suitable direction.
+     */
+    @Test(timeout = 5000)
+    public void whenElevatorDirectionIsNotSuitablePassengerShouldNotTryGetInElevator() {
+        List<Passenger> passengers = getAllPassengerFromFloors();
+        Passenger removed = passengers.get(0);
+        Floor floor = house.getFloor(removed.getLocation());
+        floor.sendPassenger(removed);
+        controller = spy(new ElevatorController(house));
+
+        Passenger passenger = spy(new Passenger(66, 8, 1));
+        passengers.add(passenger);
+        CountDownLatch startSignal = new CountDownLatch(passengers.size());
+        List<Callable<Passenger>> callableList = new ArrayList<>(passengers.size());
+        for (Passenger person: passengers) {
+            TransportationTask task = new TransportationTask(startSignal, person);
+            passenger.setElevatorController(controller);
+            callableList.add(task);
+        }
+
+        ExecutorService service = Executors.newCachedThreadPool();
+        for (Callable<Passenger> task: callableList) {
+            service.submit(task);
+        }
+        service.submit(controller);
+        try {
+            startSignal.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        service.shutdown();
+        InOrder inOrder = inOrder(controller, passenger);
+        inOrder.verify(passenger).isTargetDirection();
+        verify(controller).getInElevator(passenger);
+        verify(controller, times(1)).getOutFromElevator(passenger);
+        Floor targetFloor = house.getFloor(3);
+        assertFalse("Passenger should not be in elevator", elevator.getPassengersInside().contains(passenger));
+        assertTrue("Passenger have to arrived", targetFloor.getArrivalStoryContainer().contains(passenger));
+    }
 
     /**
      * Passengers should get in elevator when it moves in suitable direction.
@@ -199,7 +198,7 @@ public class TransportationTaskTest {
     @Test(timeout = 5000)
     public void passengerAskForGetInElevatorAfterSetNotifiedByController() {
         removePassenger();
-        movePassengersToArrivalStoryContainer(house.getPassengersCount()-1);
+        movePassengersToArrivalStoryContainer(house.getPassengersCount() - 1);
         Passenger passenger = spy(new Passenger(88, 5, 4));
         ElevatorController controller = spy(new ElevatorController(house));
         CountDownLatch startSignal = new CountDownLatch(1);

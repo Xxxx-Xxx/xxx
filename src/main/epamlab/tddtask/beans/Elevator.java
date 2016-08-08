@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by al on 7/8/16.
+ * Created by al on 7/7/16.
  */
 public class Elevator {
     private int currentLocation;
@@ -56,7 +56,7 @@ public class Elevator {
      * @param passenger object for action.
      */
     public void getIn(final Passenger passenger) {
-        if(elevatorContainer.size() < capacity) {
+        if (elevatorContainer.size() < capacity) {
             elevatorContainer.add(passenger);
         }
     }

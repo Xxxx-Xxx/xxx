@@ -7,7 +7,7 @@ import main.epamlab.tddtask.task.TransportationTask;
 
 
 /**
- * Created by al on 7/8/16.
+ * Created by al on 7/7/16.
  */
 public class Passenger {
     private final int id;
