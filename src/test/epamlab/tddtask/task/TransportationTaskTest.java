@@ -122,7 +122,6 @@ public class TransportationTaskTest {
         assertThat("passengers state should be completed", passenger.getState(), is(PassengerState.COMPLETED));
     }
 
-
     /**
      * Passengers should get in elevator when it moves in suitable direction.
      */
