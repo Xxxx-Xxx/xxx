@@ -8,3 +8,6 @@ files:
 Application runs by execute ant command: ant
 For change starting conditions: modify config.properties in /src/resources.
 Log file of application elevator.log will be located in root directory.
+
+Document describing tests by classes and furutes:
+https://docs.google.com/document/d/1bv40Wqot2kvhJUFBrXKyffreF_xWDgbhaMFIUdSzh-U/edit
