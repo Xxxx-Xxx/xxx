@@ -18,10 +18,11 @@ import java.util.concurrent.Executors;
 final class Runner {
     private static House house;
     private static CountDownLatch startSignal;
+    private static ElevatorController controller;
     private Runner() { }
     public static void main(final String[] args) {
         house = HouseBuilder.buildHouse();
-        ElevatorController controller = new ElevatorController(house);
+        controller = new ElevatorController(house);
         ExecutorService service = Executors.newCachedThreadPool();
         service.submit(controller);
         startAllTransportationTasks();
@@ -46,6 +47,7 @@ final class Runner {
         for (Passenger passenger:passengers) {
             TransportationTask task = new TransportationTask(startSignal, passenger);
             passenger.setTask(task);
+            passenger.setElevatorController(controller);
             service.submit(task);
         }
     }

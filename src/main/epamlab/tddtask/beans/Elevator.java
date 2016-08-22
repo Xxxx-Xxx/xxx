@@ -2,15 +2,20 @@ package main.epamlab.tddtask.beans;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by al on 7/7/16.
  */
 public class Elevator {
+    private Condition elevatorCondition;
     private int currentLocation;
     private Set<Passenger> elevatorContainer;
     private final int capacity;
     private static final int DEFAULT_LOCATION = 1;
+    private Lock elevatorLock;
 
     /**
      * Constructor for getting Elevator object
@@ -21,6 +26,8 @@ public class Elevator {
         this.capacity = capacity;
         this.elevatorContainer = new HashSet<>(capacity);
         currentLocation = DEFAULT_LOCATION;
+        elevatorLock = new ReentrantLock();
+        elevatorCondition = elevatorLock.newCondition();
     }
 
     /**
@@ -91,6 +98,14 @@ public class Elevator {
     @Override
     public String toString() {
         return "Elevator now on " + currentLocation + "floor.";
+    }
+
+    public Lock getLock() {
+        return elevatorLock;
+    }
+
+    public Condition getCondition() {
+        return elevatorCondition;
     }
 }
 

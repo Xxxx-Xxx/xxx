@@ -1,10 +1,16 @@
 package main.epamlab.tddtask.task;
 
+import main.epamlab.tddtask.beans.Elevator;
+import main.epamlab.tddtask.beans.Floor;
+import main.epamlab.tddtask.beans.House;
 import main.epamlab.tddtask.beans.Passenger;
+import main.epamlab.tddtask.controller.ElevatorController;
 import main.epamlab.tddtask.enums.PassengerState;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Created by Aliaksei Biazbubnau on 27.07.2016.
@@ -12,7 +18,6 @@ import java.util.concurrent.CountDownLatch;
 public class TransportationTask implements Callable<Passenger> {
     private Passenger passenger;
     private CountDownLatch startSignal;
-    private CountDownLatch doneSignal;
 
     /**
      * Constructor using fields
@@ -24,15 +29,6 @@ public class TransportationTask implements Callable<Passenger> {
         this.startSignal = latch;
         this.passenger = passenger;
         passenger.setTask(this);
-    }
-
-    /**
-     * Define signal that mean the task finished.
-     *
-     * @param latch object.
-     */
-    public void setDoneSignal(final CountDownLatch latch) {
-        this.doneSignal = latch;
     }
 
     /**
@@ -53,18 +49,9 @@ public class TransportationTask implements Callable<Passenger> {
     @Override
     public Passenger call() throws Exception {
         while (!Thread.currentThread().interrupted()) {
-            if (passenger.isNotified()) {
+                doWait();
                 execute();
-            } else {
-                synchronized (passenger) {
-                    try {
-                        passenger.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
-        }
         return passenger;
     }
 
@@ -72,42 +59,58 @@ public class TransportationTask implements Callable<Passenger> {
      * Performed operations, suitable for current passengers state.
      */
     private void execute() {
+        ElevatorController controller = passenger.getElevatorController();
+        CountDownLatch doneSignal = controller.getDoneSignal();
         PassengerState state = passenger.getState();
         switch (state) {
             case NOT_STARTED:
-                if (passenger.isNotified()) {
-                    passenger.setState(PassengerState.IN_PROGRESS);
                     if (passenger.isTargetDirection()) {
-                        passenger.getElevatorController().getInElevator(passenger);
+                        controller.getInElevator(passenger);
+                        passenger.setState(PassengerState.IN_PROGRESS);
                     }
-                    passenger.setNotified(false);
-                }
+                passenger.setNotified(false);
                 break;
 
             case IN_PROGRESS:
-                if (passenger.isNotified()) {
-                    if (passenger.isTargetFloor()) {
-                        passenger.getElevatorController().getOutFromElevator(passenger);
+                if (passenger.isTargetFloor()) {
+                        controller.getOutFromElevator(passenger);
                         passenger.setState(PassengerState.COMPLETED);
                         doneSignal.countDown();
                         return;
                     }
-                } else {
-                    synchronized (passenger) {
-                        try {
-                            passenger.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                passenger.setNotified(false);
                 break;
 
             default:
+                doneSignal.countDown();
                 startSignal.countDown();
                 Thread.currentThread().interrupt();
                 return;
         }
         doneSignal.countDown();
+    }
+
+    public void doWait(){
+        ElevatorController controller = passenger.getElevatorController();
+        PassengerState state = passenger.getState();
+        House house = controller.getHouse();
+        Lock lock;
+        Condition condition;
+        if(state == PassengerState.NOT_STARTED){
+            Floor floor = house.getFloor(passenger.getLocation());
+            lock = floor.getLock();
+            condition = floor.getCondition();
+        } else {
+            Elevator elevator = house.getElevator();
+            lock = elevator.getLock();
+            condition = elevator.getCondition();
+        }
+        lock.lock();
+        try {
+            condition.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        lock.unlock();
     }
 }

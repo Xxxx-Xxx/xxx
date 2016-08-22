@@ -2,6 +2,9 @@ package main.epamlab.tddtask.beans;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by al on 27/7/16.
@@ -10,6 +13,8 @@ public class Floor {
 
     private Set<Passenger> dispatchStoryContainer;
     private Set<Passenger> arrivalStoryContainer;
+    private Lock floorLock;
+    private Condition floorCondition;
 
     /**
      * Returns container that contains passengers in this floor, which are ready for transportation.
@@ -34,6 +39,8 @@ public class Floor {
     public Floor() {
         dispatchStoryContainer = new HashSet<>();
         arrivalStoryContainer = new HashSet<>();
+        floorLock = new ReentrantLock();
+        floorCondition = floorLock.newCondition();
     }
 
     /**
@@ -68,4 +75,11 @@ public class Floor {
         dispatchStoryContainer.remove(passenger);
     }
 
+    public Lock getLock() {
+        return floorLock;
+    }
+
+    public Condition getCondition(){
+        return floorCondition;
+    }
 }

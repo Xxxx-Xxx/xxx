@@ -11,8 +11,9 @@ import main.epamlab.tddtask.utility.TransportationCompleteValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Created by Aliaksei Biazbubnau on 27.07.2016.
@@ -26,6 +27,8 @@ public class ElevatorController implements Runnable {
     private ElevatorControllerAction action;
     private final Logger logger = LogManager.getLogger(ElevatorController.class);
     private TransportationCompleteValidator validator;
+    private CountDownLatch doneSignal;
+
 
     /**
      * Constructor used for initialize fields and initialize fields by their current or default values
@@ -148,58 +151,9 @@ public class ElevatorController implements Runnable {
     }
 
     /**
-     * Notified passenger on floor
-     *
-     * @param latch done signal
-     */
-    public void notifyPassengersOnFloor(final CountDownLatch latch) {
-        Floor currentFloor = house.getFloor(getLocation());
-        Set<Passenger> passengers = currentFloor.getDispatchStoryContainer();
-        if (passengers.size() == INDEX_0) {
-            latch.countDown();
-            return;
-        }
-        for (Passenger passenger : passengers) {
-            passenger.setElevatorController(this);
-            passenger.setNotified(true);
-            if (passenger.getTask() !=  null) {
-                passenger.getTask().setDoneSignal(latch);
-                synchronized (passenger) {
-                    passenger.notify();
-                }
-            }
-        }
-    }
-
-    /**
-     * Notifies passengers in elevator
-     *
-     * @param latch done signal
-     */
-    public void notifyPassengersInElevator(final CountDownLatch latch) {
-        Set<Passenger> passengers = elevator.getPassengersInside();
-        if (passengers.size() == INDEX_0) {
-            latch.countDown();
-            return;
-        } else {
-            for (Passenger passenger : passengers) {
-                if (passenger.getTask() != null) {
-                    passenger.getTask().setDoneSignal(latch);
-                    passenger.setNotified(true);
-                    synchronized (passenger) {
-                        passenger.notify();
-                    }
-                } else {
-                    passenger.setNotified(true);
-                }
-            }
-        }
-    }
-
-    /**
      * Sequence of actions that will be run on the floor.
      */
-    private void executeOnFloor() {
+    public void executeOnFloor() {
         action = ElevatorControllerAction.BOARDING_OF_PASSENGER;
         logger.info(action + " on " + elevator.getCurrentLocation() + " floor");
         Floor current = house.getFloor(getLocation());
@@ -207,10 +161,12 @@ public class ElevatorController implements Runnable {
         if (candidates == INDEX_0) {
             return;
         }
-        CountDownLatch floorSignal = new CountDownLatch(candidates);
-        notifyPassengersOnFloor(floorSignal);
+        doneSignal = new CountDownLatch(candidates);
+        Lock lock = current.getLock();
+        Condition condition = current.getCondition();
+        notifyPassengers(lock, condition);
         try {
-            floorSignal.await();
+            doneSignal.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -219,17 +175,19 @@ public class ElevatorController implements Runnable {
     /**
      * Actions that will be executes for passengers located in elevator.
      */
-    private void executeInElevator() {
+    public void executeInElevator() {
         action = ElevatorControllerAction.DEBOARDING_OF_PASSENGER;
         logger.info(action + " on " + elevator.getCurrentLocation() + " floor");
         int passengers = elevator.countPassengersInside();
         if (passengers == 0) {
             return;
         }
-        CountDownLatch elevatorSignal = new CountDownLatch(passengers);
-        notifyPassengersInElevator(elevatorSignal);
+        doneSignal = new CountDownLatch(passengers);
+        Lock lock = elevator.getLock();
+        Condition condition = elevator.getCondition();
+        notifyPassengers(lock, condition);
         try {
-            elevatorSignal.await();
+            doneSignal.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -266,4 +224,21 @@ public class ElevatorController implements Runnable {
     public Direction getDirection() {
         return direction;
     }
+
+
+    private void notifyPassengers(Lock lock, Condition condition){
+        lock.lock();
+        condition.signalAll();
+        lock.unlock();
+
+    }
+
+    public House getHouse(){
+        return house;
+    }
+
+    public CountDownLatch getDoneSignal() {
+        return doneSignal;
+    }
+
 }
