@@ -331,7 +331,6 @@ public class TransportationTaskTest {
             service.submit(task);
         }
 
-        List<Passenger> persons = getAllPassengerFromFloors();
         for(int i = 1; i<house.getHeight(); i++) {
             int countOnFloor = house.getFloor(controller.getLocation()).countPassengers();
             int countInElevator = elevator.countPassengersInside();
@@ -340,10 +339,9 @@ public class TransportationTaskTest {
             int countOnFloorAfter = house.getFloor(controller.getLocation()).countPassengers();
             if (countOnFloor != countOnFloorAfter) {
                 int diff = countOnFloor - countOnFloorAfter;
-                int diffInElevator = elevator.countPassengersInside();
-                int targetDiff = diffInElevator - countInElevator;
+                int targetDiff = elevator.countPassengersInside() - countInElevator;
 
-                assertThat("Number of those who leave floor should match with amount who got in elevator", diff, is(targetDiff));
+                assertThat("Number of passengers who leave floor should match with amount who got in elevator", diff, is(targetDiff));
             }
             controller.startElevator();
 
@@ -354,12 +352,7 @@ public class TransportationTaskTest {
             int newAmount = house.getFloor(controller.getLocation()).getArrivalStoryContainer().size();
             assertThat("Number of passengers who leave elevator should be match with arrived passengers", (newTarget - target), is(amount - newAmount));
         }
-
     }
-
-
-
-
 
     private List<Passenger> getAllPassengerFromFloors() {
         List<Passenger> candidates = new ArrayList<>();
