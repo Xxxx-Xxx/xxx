@@ -98,36 +98,36 @@ public class ElevatorControllerTest {
         assertTrue("passenger should be in elevator", passengersIn.contains(passenger));
     }
 
-//    /**
-//     * Controller puts passengers in elevator while elevator container isn’t full.
-//     */
-//    @Test
-//    public void controllerPutsPassengersInElevatorContainerNoMoreAsCapacity() {
-//        List<Passenger> passengers = createPassengers(elevator.getCapacity() + 2);
-//        for (Passenger passenger : passengers) {
-//            elevator.getIn(passenger);
-//        }
-//        assertThat("controller puts in elevator no more passengers as capacity",
-//                elevator.getCapacity(), is(elevator.countPassengersInside()));
-//    }
+    /**
+     * Controller puts passengers in elevator while elevator container isn’t full.
+     */
+    @Test
+    public void controllerPutsPassengersInElevatorContainerNoMoreAsCapacity() {
+        List<Passenger> passengers = createPassengers(elevator.getCapacity() + 2);
+        for (Passenger passenger : passengers) {
+            elevator.getIn(passenger);
+        }
+        assertThat("controller puts in elevator no more passengers as capacity",
+                elevator.getCapacity(), is(elevator.countPassengersInside()));
+    }
 
-//    /**
-//     * Controller puts passengers in elevator while elevator container isn’t full.
-//     */
-//    @Test
-//    public void controllerPutsPassengersInElevatorWhileThereArePassengersOnFloor() {
-//        int initial = 1;
-//        Floor floor = house.getFloor(initial);
-//        Set<Passenger> container = floor.getDispatchStoryContainer();
-//        List<Passenger> passengers = createPassengers(3);
-//        ElevatorController spyController = spy(new ElevatorController(house));
-//        if (container.size() == 0) {
-//            spyController.startElevator();
-//        } else {
-//            int countInside = elevator.countPassengersInside();
-//            verify(spyController, times(countInside)).getInElevator(any());
-//        }
-//    }
+    /**
+     * Controller puts passengers in elevator while elevator container isn’t full.
+     */
+    @Test
+    public void controllerPutsPassengersInElevatorWhileThereArePassengersOnFloor() {
+        int initial = 1;
+        Floor floor = house.getFloor(initial);
+        Set<Passenger> container = floor.getDispatchStoryContainer();
+        List<Passenger> passengers = createPassengers(3);
+        ElevatorController spyController = spy(new ElevatorController(house));
+        if (container.size() == 0) {
+            spyController.startElevator();
+        } else {
+            int countInside = elevator.countPassengersInside();
+            verify(spyController, times(countInside)).getInElevator(any());
+        }
+    }
 
     /**
      * Controller puts passenger in elevator container and removes from dispatchContainer
@@ -160,19 +160,12 @@ public class ElevatorControllerTest {
                 floor.getArrivalStoryContainer().contains(passenger));
     }
 
-    /**
-     *Controller notifies passengers in elevator and passengers on floor.
-     */
     @Test
-    public void whenControllerExecutesNotifyPassengersOnFloorMethodPassengersOnFloorNotified() {
-        int amount = house.getPassengersCount();
-        locatePassengers(amount, house);
+    public void notifyPassengersOnTargetFloorOnly(){
+
 
         for (int i = 1; i <= house.getHeight(); i++) {
             Floor floor = house.getFloor(i);
-//            int number = floor.countPassengers();
-//            CountDownLatch latch = new CountDownLatch(number);
-            controller.executeOnFloor();
             Set<Passenger> passengers = floor.getDispatchStoryContainer();
             for (Passenger passenger: passengers) {
                 assertTrue("passenger should be notified", passenger.isNotified());
@@ -180,6 +173,28 @@ public class ElevatorControllerTest {
             controller.startElevator();
         }
     }
+
+
+//    /**
+//     *Controller notifies passengers in elevator and passengers on floor.
+//     */
+//    @Test
+//    public void whenControllerExecutesNotifyPassengersOnFloorMethodPassengersOnFloorNotified() {
+//        int amount = house.getPassengersCount();
+//        locatePassengers(amount, house);
+//
+//        for (int i = 1; i <= house.getHeight(); i++) {
+//            Floor floor = house.getFloor(i);
+////            int number = floor.countPassengers();
+////            CountDownLatch latch = new CountDownLatch(number);
+//            controller.executeOnFloor();
+//            Set<Passenger> passengers = floor.getDispatchStoryContainer();
+//            for (Passenger passenger: passengers) {
+//                assertTrue("passenger should be notified", passenger.isNotified());
+//            }
+//            controller.startElevator();
+//        }
+//    }
 
 //    /**
 //     * Controller notifies passengers in elevator and passengers on floor.
@@ -196,7 +211,7 @@ public class ElevatorControllerTest {
 //            Floor floor = house.getFloor(passenger.getLocation());
 //            floor.sendPassenger(passenger);
 //        }
-//
+
 //        CountDownLatch latch = new CountDownLatch(elevator.countPassengersInside());
 //        controller.notifyPassengersInElevator(latch);
 //        Set<Passenger> candidates = elevator.getPassengersInside();

@@ -29,7 +29,6 @@ public class ElevatorController implements Runnable {
     private TransportationCompleteValidator validator;
     private CountDownLatch doneSignal;
 
-
     /**
      * Constructor used for initialize fields and initialize fields by their current or default values
      *

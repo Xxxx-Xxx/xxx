@@ -58,7 +58,7 @@ public class TransportationTask implements Callable<Passenger> {
     /**
      * Performed operations, suitable for current passengers state.
      */
-    private void execute() {
+    public void execute() {
         ElevatorController controller = passenger.getElevatorController();
         CountDownLatch doneSignal = controller.getDoneSignal();
         PassengerState state = passenger.getState();
@@ -112,5 +112,6 @@ public class TransportationTask implements Callable<Passenger> {
             e.printStackTrace();
         }
         lock.unlock();
+        passenger.setNotified(true);
     }
 }

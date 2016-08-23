@@ -314,6 +314,51 @@ public class TransportationTaskTest {
 //                targetFloor.getArrivalStoryContainer().contains(passenger));
 //    }
 
+    @Test
+    public void passengersGetInAndLeaveElevator(){
+        List<Passenger>passengers = getAllPassengerFromFloors();
+
+        List<Callable<Passenger>> callableList = new ArrayList<>(passengers.size());
+        CountDownLatch startSignal = new CountDownLatch(callableList.size());
+        for (Passenger person: passengers) {
+            TransportationTask task = new TransportationTask(startSignal, person);
+            person.setElevatorController(controller);
+            callableList.add(task);
+        }
+
+        ExecutorService service = Executors.newCachedThreadPool();
+        for (Callable<Passenger> task: callableList) {
+            service.submit(task);
+        }
+
+        List<Passenger> persons = getAllPassengerFromFloors();
+        for(int i = 1; i<house.getHeight(); i++) {
+            int countOnFloor = house.getFloor(controller.getLocation()).countPassengers();
+            int countInElevator = elevator.countPassengersInside();
+
+            controller.executeOnFloor();
+            int countOnFloorAfter = house.getFloor(controller.getLocation()).countPassengers();
+            if (countOnFloor != countOnFloorAfter) {
+                int diff = countOnFloor - countOnFloorAfter;
+                int diffInElevator = elevator.countPassengersInside();
+                int targetDiff = diffInElevator - countInElevator;
+
+                assertThat("Number of those who leave floor should match with amount who got in elevator", diff, is(targetDiff));
+            }
+            controller.startElevator();
+
+            int target = elevator.countPassengersInside();
+            int amount = house.getFloor(controller.getLocation()).getArrivalStoryContainer().size();
+            controller.executeInElevator();
+            int newTarget = elevator.countPassengersInside();
+            int newAmount = house.getFloor(controller.getLocation()).getArrivalStoryContainer().size();
+            assertThat("Number of passengers who leave elevator should be match with arrived passengers", (newTarget - target), is(amount - newAmount));
+        }
+
+    }
+
+
+
 
 
     private List<Passenger> getAllPassengerFromFloors() {
@@ -355,18 +400,6 @@ public class TransportationTaskTest {
             destinationFloor.meetPassenger(passenger);
             passenger.setState(PassengerState.COMPLETED);
             --number;
-        }
-    }
-
-    class FakeController extends ElevatorController{
-
-        /**
-         * Constructor used for initialize fields and initialize fields by their current or default values
-         *
-         * @param house House object, where controller will be working
-         */
-        public FakeController(House house) {
-            super(house);
         }
     }
 }
