@@ -105,6 +105,7 @@ public class TransportationTask implements Callable<Passenger> {
             lock = elevator.getLock();
             condition = elevator.getCondition();
         }
+        passenger.setNotified(false);
         lock.lock();
         try {
             condition.await();

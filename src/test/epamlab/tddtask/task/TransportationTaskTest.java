@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.mockito.verification.Timeout;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -21,10 +22,10 @@ import java.util.concurrent.*;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.inOrder;
-
 
 
 /**
@@ -195,7 +196,7 @@ public class TransportationTaskTest {
 //     * Passenger doing depends on either he notified or not
 //     */
 //    @Test(timeout = 5000)
-//    public void passengerAskForGetInElevatorAfterSetNotifiedByController() {
+//    public void passengerAskForGetInElevator() {
 //        removePassenger();
 //        movePassengersToArrivalStoryContainer(house.getPassengersCount() - 1);
 //        Passenger passenger = spy(new Passenger(88, 5, 4));
@@ -223,7 +224,7 @@ public class TransportationTaskTest {
 //     * Passenger doing depends on either he notified or not
 //     */
 //    @Test(timeout = 5000)
-//    public void passengerAskForGetOutFromElevatorAfterSetNotifiedByController() {
+//    public void passengerAskForGetOutFromElevator() {
 //        removePassenger();
 //        movePassengersToArrivalStoryContainer(house.getPassengersCount() - 1);
 //        Passenger passenger = spy(new Passenger(99, 3, 4));
@@ -248,6 +249,61 @@ public class TransportationTaskTest {
 //        inOrder.verify(passenger).setNotified(true);
 //        inOrder.verify(controller).getOutFromElevator(passenger);
 //    }
+
+    /**
+     * Passenger doing depends on either he notified or not
+     */
+    @Test(timeout = 5000)
+    public void passengersNotifiedOnTargetFloorOnlyAndThenInElevatorOnly() {
+        List<Passenger> passengers = getAllPassengerFromFloors();
+
+        List<Callable<Passenger>> callableList = new ArrayList<>(passengers.size());
+        CountDownLatch startSignal = new CountDownLatch(callableList.size());
+        for (Passenger person : passengers) {
+            TransportationTask task = new TransportationTask(startSignal, person);
+            person.setElevatorController(controller);
+            callableList.add(task);
+        }
+
+        ExecutorService service = Executors.newCachedThreadPool();
+        for (Callable<Passenger> task : callableList) {
+            service.submit(task);
+        }
+
+        for (int i = 1; i < house.getHeight(); i++) {
+            controller.executeOnFloor();
+            Set<Passenger> floorList = house.getFloor(elevator.getCurrentLocation()).getDispatchStoryContainer();
+            List<Passenger> passengerList = getAllPassengerFromFloors();
+                for (Passenger passenger : floorList) {
+                    assertThat("All passengers from current floor should be notified", passenger.isNotified(), is(true));
+                }
+            for(Passenger passenger: passengerList){
+                if(passenger.isNotified()){
+                    assertThat("Notified passenger should be from current floor only", elevator.getCurrentLocation(), is(passenger.getCurrentLocation()));
+                }
+                }
+
+            if(elevator.countPassengersInside() > 0){
+                Set<Passenger> passengerSet = elevator.getPassengersInside();
+                for(Passenger passenger: passengerSet){
+                    assertThat("Passengers in elevator should not be notified now", passenger.isNotified(), is(false));
+                }
+            }
+            controller.startElevator();
+            controller.executeInElevator();
+
+            Set<Passenger> elevatorSet = elevator.getPassengersInside();
+            for(Passenger passenger: elevatorSet){
+                assertThat("Passengers in elevator should be notified", passenger.isNotified(), is(true));
+            }
+            for(Passenger passenger: passengerList){
+                if(passenger.isNotified()){
+                    assertTrue("If passenger is notified he's located in elevator only", elevatorSet.contains(passenger));
+                }
+            }
+        }
+        service.shutdown();
+    }
 //
 //    /**
 //     * Passengers should leave elevator on their destination floor.
@@ -314,24 +370,28 @@ public class TransportationTaskTest {
 //                targetFloor.getArrivalStoryContainer().contains(passenger));
 //    }
 
-    @Test
-    public void passengersGetInAndLeaveElevator(){
-        List<Passenger>passengers = getAllPassengerFromFloors();
+    /**
+     * Passengers should get in elevator when it moves in suitable direction.
+     * Passengers should leave elevator on their destination floor.
+     */
+    @Test(timeout = 5000)
+    public void passengersGetInAndLeaveElevator() {
+        List<Passenger> passengers = getAllPassengerFromFloors();
 
         List<Callable<Passenger>> callableList = new ArrayList<>(passengers.size());
         CountDownLatch startSignal = new CountDownLatch(callableList.size());
-        for (Passenger person: passengers) {
+        for (Passenger person : passengers) {
             TransportationTask task = new TransportationTask(startSignal, person);
             person.setElevatorController(controller);
             callableList.add(task);
         }
 
         ExecutorService service = Executors.newCachedThreadPool();
-        for (Callable<Passenger> task: callableList) {
+        for (Callable<Passenger> task : callableList) {
             service.submit(task);
         }
 
-        for(int i = 1; i<house.getHeight(); i++) {
+        for (int i = 1; i < house.getHeight(); i++) {
             int countOnFloor = house.getFloor(controller.getLocation()).countPassengers();
             int countInElevator = elevator.countPassengersInside();
 
@@ -344,14 +404,15 @@ public class TransportationTaskTest {
                 assertThat("Number of passengers who leave floor should match with amount who got in elevator", diff, is(targetDiff));
             }
             controller.startElevator();
-
             int target = elevator.countPassengersInside();
             int amount = house.getFloor(controller.getLocation()).getArrivalStoryContainer().size();
+
             controller.executeInElevator();
             int newTarget = elevator.countPassengersInside();
             int newAmount = house.getFloor(controller.getLocation()).getArrivalStoryContainer().size();
             assertThat("Number of passengers who leave elevator should be match with arrived passengers", (newTarget - target), is(amount - newAmount));
         }
+        service.shutdown();
     }
 
     private List<Passenger> getAllPassengerFromFloors() {

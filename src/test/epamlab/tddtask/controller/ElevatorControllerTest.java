@@ -160,26 +160,11 @@ public class ElevatorControllerTest {
                 floor.getArrivalStoryContainer().contains(passenger));
     }
 
-    @Test
-    public void notifyPassengersOnTargetFloorOnly(){
-
-
-        for (int i = 1; i <= house.getHeight(); i++) {
-            Floor floor = house.getFloor(i);
-            Set<Passenger> passengers = floor.getDispatchStoryContainer();
-            for (Passenger passenger: passengers) {
-                assertTrue("passenger should be notified", passenger.isNotified());
-            }
-            controller.startElevator();
-        }
-    }
-
-
 //    /**
 //     *Controller notifies passengers in elevator and passengers on floor.
 //     */
 //    @Test
-//    public void whenControllerExecutesNotifyPassengersOnFloorMethodPassengersOnFloorNotified() {
+//    public void controllerNotifiesPassengersOnFloor() {
 //        int amount = house.getPassengersCount();
 //        locatePassengers(amount, house);
 //
@@ -192,15 +177,15 @@ public class ElevatorControllerTest {
 //            for (Passenger passenger: passengers) {
 //                assertTrue("passenger should be notified", passenger.isNotified());
 //            }
-//            controller.startElevator();
+////            controller.startElevator();
 //        }
 //    }
-
+//
 //    /**
 //     * Controller notifies passengers in elevator and passengers on floor.
 //     */
 //    @Test
-//    public void whenControllerExecutesNotifyInElevatorMethodPassengersInElevatorNotified() {
+//    public void controllerNotifiesPassengersInElevator() {
 //       int amount = house.getPassengersCount();
 //        List<Passenger> passengers = createPassengers(amount);
 //        locatePassengers(amount, house);
@@ -211,9 +196,9 @@ public class ElevatorControllerTest {
 //            Floor floor = house.getFloor(passenger.getLocation());
 //            floor.sendPassenger(passenger);
 //        }
-
+//
 //        CountDownLatch latch = new CountDownLatch(elevator.countPassengersInside());
-//        controller.notifyPassengersInElevator(latch);
+//        controller.executeInElevator();
 //        Set<Passenger> candidates = elevator.getPassengersInside();
 //
 //        for (Passenger passenger: candidates) {
@@ -285,8 +270,3 @@ public class ElevatorControllerTest {
     }
 
 }
-
-
-
-
-
